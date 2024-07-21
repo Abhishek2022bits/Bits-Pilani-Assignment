@@ -1,0 +1,53 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+//Define a structure to hold job information
+typedef struct {
+    int T; // time to complete the job
+    int S; // fine per day of delay
+    int index; // original position of the job
+} Job;
+
+// Comparison function for sorting jobs based on the ratio S/T
+int compare(const void *a, const void *b) {
+    Job *jobA = (Job *)a;
+    Job *jobB = (Job *)b;
+
+    // Cross-multiply to compare ratios (jobA->S / jobA->T) and (jobB->S / jobB->T)
+    long long ratioA = (long long) jobA->S * jobB->T;
+    long long ratioB = (long long) jobB->S * jobA->T;
+
+    if (ratioA != ratioB) {
+        // We want descending order of ratios
+        return (ratioB - ratioA);
+    } else {
+        // If ratios are the same, use the original index for lexicographical order
+        return (jobA->index - jobB->index);
+    }
+}
+int main() {
+    int N;
+    scanf("%d", &N);
+
+    // Allocate memory for jobs
+    Job *jobs = (Job *)malloc(N * sizeof(Job));
+
+    // Read job details
+    for (int i = 0; i < N; i++) {
+        scanf("%d %d", &jobs[i].T, &jobs[i].S);
+        jobs[i].index = i + 1; // Store the 1-based index
+    }
+
+    // Sort jobs using the compare function
+    qsort(jobs, N, sizeof(Job), compare);
+
+    // Print the indices of the jobs in the required order
+    for (int i = 0; i < N; i++) {
+        printf("%d\n", jobs[i].index);
+    }
+
+    // Free the allocated memory
+    free(jobs);
+
+    return 0;
+}

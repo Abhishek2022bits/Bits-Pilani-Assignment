@@ -1,0 +1,91 @@
+#include <stdio.h>
+#include <stdlib.h>
+#define MAX 250
+// Define a structure for a point on the board
+typedef struct {  int x, y;
+                  int jumps;
+
+} Point;
+// Queue for BFS
+typedef struct { Point points[MAX * MAX];
+                 int front, rear;\
+
+} Queue;
+void enqueue(Queue *q, Point p) {
+    q->points[q->rear++] = p;
+
+}
+Point dequeue(Queue *q) {
+    return q->points[q->front++];
+
+}
+int is_empty(Queue *q) {
+    return q->front == q->rear;}
+int bfs(int M, int N, int R[MAX][MAX], int D[MAX][MAX]) {
+    Queue q;
+    q.front = q.rear = 0;
+    int visited[MAX][MAX] = {0};
+ // Starting point
+    Point start = {0, 0, 0};
+    enqueue(&q, start);
+    visited[0][0] = 1;
+    while (!is_empty(&q)) {
+        Point current = dequeue(&q);
+// Check if we've reached the bottom right corner
+        if (current.x == M - 1 && current.y == N - 1) {
+            return current.jumps;
+
+        }
+// Move to the right
+    for (int jump = 1; jump <= R[current.x][current.y]; jump++) {
+        int newX = current.x;
+        int newY = current.y + jump;
+        if (newY < N && !visited[newX][newY]) { visited[newX][newY] = 1;
+            Point next = {newX, newY, current.jumps + 1};
+            enqueue(&q, next);
+
+        }
+
+    }
+// Move down
+    for (int jump = 1; jump <= D[current.x][current.y]; jump++) {
+        int newX = current.x + jump;
+        int newY = current.y;
+        if (newX < M && !visited[newX][newY]) { visited[newX][newY] = 1;
+            Point next = {newX, newY, current.jumps + 1};
+            enqueue(&q, next);
+
+            }
+
+       }
+
+    }
+ // If there's no way to reach the bottom right corner
+    return -1;
+
+    }
+    int main() {int M, N;
+    scanf("%d %d", &M, &N);
+
+     int R[MAX][MAX], D[MAX][MAX];
+// Read R values
+    for (int i = 0; i < M; i++) {for (int j = 0; j < N; j++) {scanf("%d", &R[i][j]);
+
+    }
+
+    }
+// Read D values
+    for (int i = 0; i < M; i++) {
+        for (int j = 0; j < N; j++) {
+            scanf("%d", &D[i][j]);
+
+        }
+
+    }
+// Perform BFS to find the minimum number of jumps
+int result = bfs(M, N, R, D);
+printf("%d\n", result);
+
+return 0;
+
+}

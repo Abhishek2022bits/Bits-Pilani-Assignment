@@ -1,0 +1,109 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <limits.h>
+
+#define MAX_R 20
+#define MAX_C 20
+#define INF INT_MAX
+
+typedef struct {
+    int sx, sy, bx, by;
+    int pushes, walks;
+} State;
+
+typedef struct {
+    State states[MAX_R * MAX_C * MAX_R * MAX_C];
+    int front, rear;
+} Queue;
+
+void enqueue(Queue *q, State state) {
+    q->states[q->rear++] = state;
+}
+
+State dequeue(Queue *q) {
+    return q->states[q->front++];
+}
+
+int is_empty(Queue *q) {
+    return q->front == q->rear;
+}
+
+int is_valid(int x, int y, int r, int c, char maze[MAX_R][MAX_C]) {
+    return x >= 0 && x < r && y >= 0 && y < c && maze[x][y] != '#';
+}
+
+int bfs(int r, int c, char maze[MAX_R][MAX_C], int sx, int sy, int bx, int by, int tx, int ty) {
+    int visited[MAX_R][MAX_C][MAX_R][MAX_C];
+    memset(visited, 0, sizeof(visited));
+
+    Queue q;
+    q.front = q.rear = 0;
+    State start = {sx, sy, bx, by, 0, 0};
+    enqueue(&q, start);
+    visited[sx][sy][bx][by] = 1;
+
+    int dx[] = {0, 0, -1, 1};
+    int dy[] = {-1, 1, 0, 0};
+
+    while (!is_empty(&q)) {
+        State current = dequeue(&q);
+
+        if (current.bx == tx && current.by == ty) {
+            printf("%d %d\n", current.pushes, current.walks);
+            return 0;
+        }
+
+        for (int i = 0; i < 4; i++) {
+            int nsx = current.sx + dx[i];
+            int nsy = current.sy + dy[i];
+
+            if (is_valid(nsx, nsy, r, c, maze)) {
+                if (nsx == current.bx && nsy == current.by) {
+                    int nbx = current.bx + dx[i];
+                    int nby = current.by + dy[i];
+                    if (is_valid(nbx, nby, r, c, maze) && !visited[nsx][nsy][nbx][nby]) {
+                        visited[nsx][nsy][nbx][nby] = 1;
+                        State next = {nsx, nsy, nbx, nby, current.pushes + 1, current.walks};
+                        enqueue(&q, next);
+                    }
+                } else if (!visited[nsx][nsy][current.bx][current.by]) {
+                    visited[nsx][nsy][current.bx][current.by] = 1;
+                    State next = {nsx, nsy, current.bx, current.by, current.pushes, current.walks + 1};
+                    enqueue(&q, next);
+                }
+            }
+        }
+    }
+
+    printf("-1\n");
+    return -1;
+}
+
+int main() {
+    int r, c;
+    scanf("%d %d", &r, &c);
+    char maze[MAX_R][MAX_C];
+
+    int sx, sy, bx, by, tx, ty;
+
+    for (int i = 0; i < r; i++) {
+        scanf("%s", maze[i]);
+        for (int j = 0; j < c; j++) {
+            if (maze[i][j] == 'S') {
+                sx = i;
+                sy = j;
+            } else if (maze[i][j] == 'B') {
+                bx = i;
+                by = j;
+            } else if (maze[i][j] == 'T') {
+                tx = i;
+                ty = j;
+            }
+        }
+    }
+
+    bfs(r, c, maze, sx, sy, bx, by, tx, ty);
+
+    return 0;
+}

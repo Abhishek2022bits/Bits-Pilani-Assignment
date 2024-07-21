@@ -1,0 +1,75 @@
+#include <stdio.h>
+#include <stdlib.h>
+//Define a structure to hold the candidates
+typedef struct {
+ int id;
+    int count;
+} CandidateCount;
+
+//Comparison function for sorting integersint compare
+int compareint(const void *a, const void *b) {
+    return (*(int *)a - *(int *)b);
+    }
+
+//Function to count candidates from the sorted lists
+int countElectedCandidates(int N1, int *zone1, int N2, int *zone2, int N3, int *zone3, int N4, int *zone4, int N5, int *zone5) {
+    int counts[50001] = {0}; // Array to store the counts of each candidate ID   
+    int electedCount = 0;   // Counter for elected candidates
+
+//Count occurrences of each candidate in all zones   
+    for (int i = 0; i < N1; i++) counts[zone1[i]]++;
+    for (int i = 0; i < N2; i++) counts[zone2[i]]++;
+    for (int i = 0; i < N3; i++) counts[zone3[i]]++;
+    for (int i = 0; i < N4; i++) counts[zone4[i]]++;
+    for (int i = 0; i < N5; i++) counts[zone5[i]]++;
+
+ //Determine the number of elected candidates   
+    for (int i = 1; i <= 50000; i++) {
+        if (counts[i] >= 3) {
+            electedCount++;
+        }
+    }
+ return electedCount;
+}
+int main() {
+    int N1, N2, N3, N4, N5;
+
+//Read the number of candidates proposed by each zone
+    scanf("%d %d %d %d %d", &N1, &N2, &N3, &N4, &N5);
+
+ //Allocate memory for each zone's candidate list   
+    int *zone1 = (int *)malloc(N1 * sizeof(int));
+    int *zone2 = (int *)malloc(N2 * sizeof(int));
+    int *zone3 = (int *)malloc(N3 * sizeof(int));
+    int *zone4 = (int *)malloc(N4 * sizeof(int));
+    int *zone5 = (int *)malloc(N5 * sizeof(int));
+
+//Read the candidate lists for each zone
+    for (int i = 0; i < N1; i++) scanf("%d", &zone1[i]);
+    for (int i = 0; i < N2; i++) scanf("%d", &zone2[i]);
+    for (int i = 0; i < N3; i++) scanf("%d", &zone3[i]);
+    for (int i = 0; i < N4; i++) scanf("%d", &zone4[i]);
+    for (int i = 0; i < N5; i++) scanf("%d", &zone5[i]);
+
+ //Sort each list of candidates   
+    qsort(zone1, N1, sizeof(int), compareint);
+    qsort(zone2, N2, sizeof(int), compareint);
+    qsort(zone3, N3, sizeof(int), compareint);
+    qsort(zone4, N4, sizeof(int), compareint);
+    qsort(zone5, N5, sizeof(int), compareint);
+
+//Count the number of elected candidates   
+    int result = countElectedCandidates(N1, zone1, N2, zone2, N3, zone3, N4, zone4, N5, zone5);
+
+ //Print the result
+    printf("%d\n", result);
+
+//Free allocated memory
+    free(zone1);
+    free(zone2);
+    free(zone3);
+    free(zone4);
+    free(zone5);
+
+    return 0;
+}
